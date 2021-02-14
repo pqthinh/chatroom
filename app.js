@@ -59,6 +59,7 @@ app.get(config.url, function (req, res) {
 
 /* Logic */
 chat.on('connection', function(conn) {
+    // console.log(conn)
     log('socket', chalk.underline(conn.id) + ': connected (' + conn.headers['x-forwarded-for'] + ')');
     rateLimit[conn.id] = 1;
     lastTime[conn.id] = Date.now();
@@ -81,7 +82,9 @@ chat.on('connection', function(conn) {
     };
     
     for(i in bans) {
+        console.log(i, bans[i])
         if(bans[i][0] == clients[conn.id].ip) {
+
             if(Date.now() - bans[i][1] < bans[i][2]) {
                 conn.write(JSON.stringify({type:'server', info:'rejected', reason:'banned', time:bans[i][2]}));
                 return conn.close();
