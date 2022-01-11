@@ -6,23 +6,30 @@
           flat
           dense
           round
-          icon="menu"
+          :icon="leftDrawerOpen ? 'unsubscribe' : 'mark_as_unread'"
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <q-toolbar-title> Awesome Chat App </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-btn
+          flat
+          dense
+          round
+          icon="help_outline"
+          @click="toggleRightDrawer"
+        />
+        <div>{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label header> Essential Links </q-item-label>
+        <q-item-label header> Cuộc trò chuyện </q-item-label>
 
         <ListMessage
-          v-for="link in essentialLinks"
+          v-for="link in listConversation"
           :key="link.name"
           v-bind="link"
         />
@@ -32,63 +39,86 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-drawer
+      side="right"
+      v-model="drawerRight"
+      bordered
+      @click="toggleRightDrawer"
+      class="bg-grey-3"
+    >
+      <q-list>
+        <q-item-label header> Danh sách người dùng </q-item-label>
+
+        <FriendList v-for="link in listUser" :key="link.name" v-bind="link" />
+      </q-list>
+    </q-drawer>
   </q-layout>
 </template>
 
 <script>
 import { defineComponent, ref } from "vue";
-import ListMessage from 'components/ListMessage.vue'
+import ListMessage from "components/ListMessage.vue";
+import FriendList from "components/FriendItem.vue";
+import moment from "moment";
 
-const linksList = [
+moment.fn.fromNow = function (a) {
+  var duration = moment().diff(this, "day") + " ngày trước";
+  if (moment().diff(this, "day") + 0 < 1)
+    duration = moment().diff(this, "hours") + " giờ trước";
+  return duration;
+};
+
+const listConversation = [
   {
     idRoom: 1,
-    name: 'Docs',
-    lastMessage: 'quasar.dev',
-    sentTime: new Date(),
-    avatar: 'https://quasar.dev'
+    name: "Docs",
+    lastMessage: "quasar.dev",
+    stamp: moment(new Date("12/12/2021")).fromNow(),
+    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
   },
   {
     idRoom: 1,
-    name: 'Github',
-    lastMessage: 'github.com/quasarframework',
-    sentTime: new Date(),
-    avatar: 'https://github.com/quasarframework'
+    name: "Github",
+    lastMessage: "github.com/quasarframework",
+    stamp: moment().fromNow().toString(),
+    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
   },
   {
     idRoom: 1,
-    name: 'Discord Chat Channel',
-    lastMessage: 'chat.quasar.dev',
-    sentTime: new Date(),
-    avatar: 'https://chat.quasar.dev'
+    name: "Discord Chat Channel",
+    lastMessage: "chat.quasar.dev",
+    stamp: moment(new Date("12/14/2021")).fromNow().toString(),
+    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
   },
   {
     idRoom: 1,
-    name: 'Forum',
-    lastMessage: 'forum.quasar.dev',
-    sentTime: new Date(),
-    avatar: 'https://forum.quasar.dev'
+    name: "Forum",
+    lastMessage: "forum.quasar.dev",
+    stamp: moment(new Date("12/14/2021")).fromNow().toString(),
+    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
   },
   {
     idRoom: 1,
-    name: 'Twitter',
-    lastMessage: '@quasarframework',
-    sentTime: new Date(),
-    avatar: 'https://twitter.quasar.dev'
+    name: "Twitter",
+    lastMessage: "@quasarframework",
+    stamp: moment(new Date("12/14/2021")).fromNow().toString(),
+    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
   },
   {
     idRoom: 1,
-    name: 'Facebook',
-    lastMessage: '@QuasarFramework',
-    sentTime: new Date(),
-    avatar: 'https://facebook.quasar.dev'
+    name: "Facebook",
+    lastMessage: "@QuasarFramework",
+    stamp: moment(new Date("12/14/2021")).fromNow().toString(),
+    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
   },
   {
     idRoom: 1,
-    name: 'Quasar Awesome',
-    lastMessage: 'Community Quasar projects',
-    sentTime: new Date(),
-    avatar: 'https://awesome.quasar.dev'
-  }
+    name: "Quasar Awesome",
+    lastMessage: "Community Quasar projects",
+    stamp: moment(new Date("12/14/2021")).fromNow().toString(),
+    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
+  },
 ];
 
 export default defineComponent({
@@ -96,16 +126,22 @@ export default defineComponent({
 
   components: {
     ListMessage,
+    FriendList,
   },
 
   setup() {
     const leftDrawerOpen = ref(false);
-
+    const drawerRight = ref(true);
     return {
-      essentialLinks: linksList,
+      listConversation: [...listConversation],
+      listUser: [...listConversation, ...listConversation, ...listConversation],
       leftDrawerOpen,
+      drawerRight,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
+      },
+      toggleRightDrawer() {
+        drawerRight.value = !drawerRight.value;
       },
     };
   },

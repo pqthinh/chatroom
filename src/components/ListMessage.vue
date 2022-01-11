@@ -1,51 +1,49 @@
 <template>
-  <q-item
-    clickable
-    tag="a"
-    target="_blank"
-    :href="link"
-  >
-    <q-item-section
-      v-if="icon"
-      avatar
-    >
-      <q-icon :name="icon" />
+  <q-item class="chat__item-friend">
+    <q-item-section avatar>
+      <q-avatar>
+        <img :src="avatar" />
+      </q-avatar>
     </q-item-section>
 
     <q-item-section>
-      <q-item-label>{{ title }}</q-item-label>
-      <q-item-label caption>
-        {{ caption }}
+      <q-item-label class="message-inline">{{ name }}</q-item-label>
+      <q-item-label caption class="message-inline">
+        {{ lastMessage }}
       </q-item-label>
+    </q-item-section>
+
+    <q-item-section class="text-right fit-content">
+      <q-item-label class="chat-item__time">{{ stamp }}</q-item-label>
     </q-item-section>
   </q-item>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'ListMessage',
+  name: "ListMessage",
   props: {
-    title: {
+    name: {
       type: String,
-      required: true
+      default: "Thanhnt",
     },
 
-    caption: {
+    lastMessage: {
       type: String,
-      default: ''
+      default: "hello ban",
     },
 
-    link: {
+    avatar: {
       type: String,
-      default: '#'
+      default: "https://cdn.quasar.dev/img/avatar3.jpg",
     },
 
-    icon: {
+    stamp: {
       type: String,
-      default: ''
-    }
-  }
-})
+      default: '',
+    },
+  },
+});
 </script>

@@ -21,11 +21,10 @@ export default defineComponent({
       default: "Thanhnt",
     },
     avatar: {
-      type: Text,
+      type: String,
       default: "https://cdn.quasar.dev/img/avatar3.jpg",
     },
     content: {
-      type: String,
       default: "hey, how are you?",
     },
     stamp: {
@@ -38,7 +37,7 @@ export default defineComponent({
     },
   },
   updated() {
-    console.log(props);
+    // console.log(props);
   },
 });
 </script>

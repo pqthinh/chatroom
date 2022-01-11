@@ -3,7 +3,7 @@
   position: relative;
   height: calc(100vh - 60px);
   .chat_content--list-message {
-    width: 95%;
+    width: 100%;
     height: calc(100vh - 160px);
     overflow: auto;
   }
@@ -35,4 +35,23 @@
 }
 .you {
   background: "#1976D2";
+}
+
+.chat__item-friend {
+  padding: 5px 10px;
+  margin: 5px;
+  border: 1px solid #f0f0f0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.message-inline {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-item__time {
+  font-size: 12px;
 }
