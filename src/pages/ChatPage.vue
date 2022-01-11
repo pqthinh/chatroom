@@ -13,6 +13,7 @@
         v-model="textContent"
         label="Nhập nội dung"
         class="input__send-message--input"
+        autogrow
       />
       <q-btn label="Gửi" type="submit" color="primary" />
     </q-form>
