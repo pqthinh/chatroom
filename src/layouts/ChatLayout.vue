@@ -23,7 +23,7 @@
 
         <ListMessage
           v-for="link in essentialLinks"
-          :key="link ? link.title : ''"
+          :key="link.name"
           v-bind="link"
         />
       </q-list>
@@ -41,46 +41,53 @@ import ListMessage from 'components/ListMessage.vue'
 
 const linksList = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
+    idRoom: 1,
+    name: 'Docs',
+    lastMessage: 'quasar.dev',
+    sentTime: new Date(),
+    avatar: 'https://quasar.dev'
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
+    idRoom: 1,
+    name: 'Github',
+    lastMessage: 'github.com/quasarframework',
+    sentTime: new Date(),
+    avatar: 'https://github.com/quasarframework'
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
+    idRoom: 1,
+    name: 'Discord Chat Channel',
+    lastMessage: 'chat.quasar.dev',
+    sentTime: new Date(),
+    avatar: 'https://chat.quasar.dev'
   },
   {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
+    idRoom: 1,
+    name: 'Forum',
+    lastMessage: 'forum.quasar.dev',
+    sentTime: new Date(),
+    avatar: 'https://forum.quasar.dev'
   },
   {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
+    idRoom: 1,
+    name: 'Twitter',
+    lastMessage: '@quasarframework',
+    sentTime: new Date(),
+    avatar: 'https://twitter.quasar.dev'
   },
   {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
+    idRoom: 1,
+    name: 'Facebook',
+    lastMessage: '@QuasarFramework',
+    sentTime: new Date(),
+    avatar: 'https://facebook.quasar.dev'
   },
   {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
+    idRoom: 1,
+    name: 'Quasar Awesome',
+    lastMessage: 'Community Quasar projects',
+    sentTime: new Date(),
+    avatar: 'https://awesome.quasar.dev'
   }
 ];
 

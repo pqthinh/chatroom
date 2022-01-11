@@ -14,7 +14,8 @@
         avatar="https://cdn.quasar.dev/img/avatar5.jpg"
         :text="[
           'doing fine, how r you?',
-          'I just feel like typing a really, really, REALLY long message to annoy you...'
+          'I just feel like typing a really, really, REALLY long message to annoy you...',
+          'I just feel like typing a really, really, REALLY long message to annoy you...I just feel like typing a really, really, REALLY long message to annoy you...',
         ]"
         size="6"
         stamp="4 minutes ago"
@@ -24,19 +25,27 @@
         avatar="https://cdn.quasar.dev/img/avatar5.jpg"
         :text="['Did it work?']"
         stamp="1 minutes ago"
-        size="8"
+        size="6"
       />
     </div>
+    <q-input filled v-model="text_content" label="Nhập nội dung" />
   </div>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref } from "vue";
+
+const sendMessage = {
+  room_id: '', sender_id: '',content: ''
+}
+const listMessage = [
+  
+]
 
 export default defineComponent({
   setup() {
-    const conversationChat = ref(null)
-    return null
+    const conversationChat = ref(null);
+    return null;
   },
-})
+});
 </script>
