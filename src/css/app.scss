@@ -1,1 +1,11 @@
 // app global css in SCSS form
+.layout__public--container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrapper_form--login {
+  width: 100%;
+  max-width: 600px;
+}

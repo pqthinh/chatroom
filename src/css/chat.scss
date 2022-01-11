@@ -1,0 +1,13 @@
+.chat__content {
+  width: 100%;
+  .q-message-sent {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .q-message-container {
+    max-width: 60%;
+    .q-message-text {
+      width: 100%;
+    }
+  }
+}

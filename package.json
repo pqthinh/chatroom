@@ -6,6 +6,7 @@
   "author": "pqthinh <18021231@vnu.edu.vn>",
   "private": true,
   "scripts": {
+    "start": "quasar dev",
     "lint": "eslint --ext .js,.vue ./",
     "test": "echo \"No test specified\" && exit 0"
   },
