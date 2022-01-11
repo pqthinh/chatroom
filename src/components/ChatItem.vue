@@ -1,0 +1,44 @@
+<template>
+  <q-chat-message
+    :name="name"
+    :avatar="avatar"
+    :text="content"
+    :stamp="stamp"
+    :sent="sent"
+    :class="sent ? 'me' : 'you'"
+  />
+</template>
+
+<script>
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "ChatItem",
+  props: {
+    room_id: { type: String, default: "123" },
+    name: {
+      type: String,
+      default: "Thanhnt",
+    },
+    avatar: {
+      type: Text,
+      default: "https://cdn.quasar.dev/img/avatar3.jpg",
+    },
+    content: {
+      type: String,
+      default: "hey, how are you?",
+    },
+    stamp: {
+      type: String,
+      default: "4 minutes ago",
+    },
+    sent: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  updated() {
+    console.log(props);
+  },
+});
+</script>

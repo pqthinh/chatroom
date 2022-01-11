@@ -2,6 +2,10 @@
 
 A Quasar Framework app
 
+## Down load quasar-cli 
+``` bash
+npm install -g @quasar/cli
+```
 ## Install the dependencies
 ```bash
 yarn

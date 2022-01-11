@@ -1,51 +1,112 @@
 <template>
   <div class="q-pa-md row justify-center chat__content">
-    <div style="width: 100%">
-      <q-chat-message
-        name="me"
-        avatar="https://cdn.quasar.dev/img/avatar3.jpg"
-        :text="['hey, how are you?']"
-        stamp="7 minutes ago"
-        sent
-        bg-color="amber-7"
-      />
-      <q-chat-message
-        name="Jane"
-        avatar="https://cdn.quasar.dev/img/avatar5.jpg"
-        :text="[
-          'doing fine, how r you?',
-          'I just feel like typing a really, really, REALLY long message to annoy you...',
-          'I just feel like typing a really, really, REALLY long message to annoy you...I just feel like typing a really, really, REALLY long message to annoy you...',
-        ]"
-        size="6"
-        stamp="4 minutes ago"
-      />
-      <q-chat-message
-        name="Jane"
-        avatar="https://cdn.quasar.dev/img/avatar5.jpg"
-        :text="['Did it work?']"
-        stamp="1 minutes ago"
-        size="6"
+    <div class="chat_content--list-message">
+      <ChatItem
+        v-for="chatItem in conversationChat"
+        :key="chatItem"
+        v-bind="chatItem"
       />
     </div>
-    <q-input filled v-model="text_content" label="Nhập nội dung" />
+    <q-form @submit="sendMessage" class="input__send-message">
+      <q-input filled v-model="textContent" label="Nhập nội dung" class="input__send-message--input" />
+      <q-btn label="Gửi" type="submit" color="primary" />
+    </q-form>
   </div>
 </template>
 
 <script>
 import { defineComponent, ref } from "vue";
+import ChatItem from "components/ChatItem.vue";
 
-const sendMessage = {
-  room_id: '', sender_id: '',content: ''
-}
+const sendData = {
+  room_id: "",
+  sender_id: "",
+  content: "",
+};
 const listMessage = [
-  
-]
+  {
+    room_id: "123",
+    content: [
+      "doing fine, how r you?",
+      "I just feel like typing a really, really, REALLY long message to annoy you...",
+      "I just feel like typing a really, really, REALLY long message to annoy you...  I just feel like typing a really, really, REALLY long message to annoy you...",
+    ],
+    sender_id: "",
+    stamp: new Date(),
+  },
+  {
+    room_id: "123",
+    content: ["hey, how are you?"],
+    sender_id: "",
+    stamp: new Date(),
+  },
+  {
+    room_id: "123",
+    content: ["Did it work?"],
+    sender_id: "",
+    stamp: new Date(),
+  },
+  {
+    room_id: "123",
+    content: [
+      "doing fine, how r you?",
+      "I just feel like typing a really, really, REALLY long message to annoy you...",
+      "I just feel like typing a really, really, REALLY long message to annoy you...  I just feel like typing a really, really, REALLY long message to annoy you...",
+    ],
+    sender_id: "",
+    stamp: new Date(),
+  },
+  {
+    room_id: "123",
+    content: ["hey, how are you?"],
+    sender_id: "",
+    stamp: new Date(),
+  },
+  {
+    room_id: "123",
+    content: ["Did it work?"],
+    sender_id: "",
+    stamp: new Date(),
+  },
+  {
+    room_id: "123",
+    content: [
+      "doing fine, how r you?",
+      "I just feel like typing a really, really, REALLY long message to annoy you...",
+      "I just feel like typing a really, really, REALLY long message to annoy you...  I just feel like typing a really, really, REALLY long message to annoy you...",
+    ],
+    sender_id: "",
+    stamp: new Date(),
+  },
+  {
+    room_id: "123",
+    content: ["hey, how are you?"],
+    sender_id: "",
+    stamp: new Date(),
+  },
+  {
+    room_id: "123",
+    content: ["Did it work?"],
+    sender_id: "",
+    stamp: new Date(),
+  }
+];
 
 export default defineComponent({
+  name: "ChatPage",
+  components: {
+    ChatItem,
+  },
   setup() {
-    const conversationChat = ref(null);
-    return null;
+    const conversationChat = ref(listMessage);
+    const textContent = ref(null);
+    return {
+      conversationChat,
+      textContent,
+      sendMessage () {
+        console.log(textContent, sendData);
+      }
+    };
   },
 });
 </script>

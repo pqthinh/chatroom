@@ -1,5 +1,13 @@
 .chat__content {
   width: 100%;
+  position: relative;
+  height: calc(100vh - 60px);
+  .chat_content--list-message {
+    width: 95%;
+    height: calc(100vh - 160px);
+    overflow: auto;
+  }
+
   .q-message-sent {
     display: flex;
     justify-content: flex-end;
@@ -10,4 +18,21 @@
       width: 100%;
     }
   }
+}
+.input__send-message {
+  width: 90%;
+  display: flex;
+  justify-content: "flex-start";
+  align-items: "center";
+  position: absolute;
+  bottom: 10px;
+  .input__send-message--input {
+    width: 100%;
+  }
+}
+.me {
+  background: "#26A69A";
+}
+.you {
+  background: "#1976D2";
 }
