@@ -51,7 +51,7 @@ const listMessage = [
   {
     room_id: "123",
     content: ["Did it work?"],
-    sender_id: "",
+    sender_id: "thinhpq",
     stamp: moment(new Date()).fromNow(),
   },
   {

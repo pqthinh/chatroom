@@ -4,7 +4,7 @@
     :avatar="avatar"
     :text="content"
     :stamp="stamp"
-    :sent="sent"
+    :sent="sender_id"
     :class="sent ? 'me' : 'you'"
   />
 </template>
@@ -31,7 +31,7 @@ export default defineComponent({
       type: String,
       default: "4 minutes ago",
     },
-    sent: {
+    sender_id: {
       type: Boolean,
       default: false,
     },
