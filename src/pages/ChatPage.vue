@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md row justify-center chat__content">
-    <div class="chat_content--list-message">
+    <div class="chat_content--list-message" ref="chat_content">
       <ChatItem
         v-for="chatItem in conversationChat"
         :key="chatItem"
@@ -21,14 +21,21 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
+import {
+  defineComponent,
+  ref,
+  onMounted,
+  onUpdated,
+  onUnmounted,
+  onBeforeMount,
+} from "vue";
 import moment from "moment";
 import ChatItem from "components/ChatItem.vue";
-moment.locale('vi')
+moment.locale("vi");
 
 const sendData = {
-  room_id: "",
-  sender_id: "",
+  room_id: "123",
+  sender_id: "thinhpq",
   content: "",
 };
 const listMessage = [
@@ -106,13 +113,43 @@ export default defineComponent({
     ChatItem,
   },
   setup() {
-    const conversationChat = ref(listMessage);
+    const conversationChat = ref([]);
     const textContent = ref(null);
+    const chat_content = ref(null);
+
+    const scrollToBottom = () => {
+      if (!chat_content.value) return;
+      const scrollArea = chat_content.value;
+      scrollArea.scrollTop = scrollArea.scrollHeight;
+      scrollArea.scrollIntoView({ behavior: "smooth", block: "end" });
+    };
+    
+    onBeforeMount(() => {
+      console.log("before mount!");
+      conversationChat.value= [...listMessage]
+    });
+    onMounted(() => {
+      console.log("mounted!");
+      scrollToBottom();
+    });
+    onUpdated(() => {
+      console.log("updated!");
+      scrollToBottom();
+    });
+    onUnmounted(() => {
+      console.log("unmounted!");
+    });
+
     return {
       conversationChat,
       textContent,
+      chat_content,
       sendMessage() {
-        console.log(textContent, sendData);
+        conversationChat.value.push({
+          ...sendData,
+          content: [textContent.value],
+        });
+        textContent.value = null;
       },
     };
   },

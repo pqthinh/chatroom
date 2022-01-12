@@ -45,5 +45,8 @@ export default defineComponent({
       default: '',
     },
   },
+  setup(props, ctx) {
+    // console.log(ctx, "name")
+  }
 });
 </script>

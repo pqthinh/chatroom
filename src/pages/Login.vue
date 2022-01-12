@@ -52,7 +52,7 @@ export default {
           color: "green-4",
           textColor: "white",
           icon: "cloud_done",
-          message: "Submitted",
+          message: "Login success",
         });
       },
 

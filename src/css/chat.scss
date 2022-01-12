@@ -25,6 +25,10 @@
   justify-content: "flex-start";
   align-items: "center";
   position: absolute;
+  max-height: 200px;
+  textarea {
+    max-height: 160px;
+  }
   bottom: 10px;
   .input__send-message--input {
     width: 100%;

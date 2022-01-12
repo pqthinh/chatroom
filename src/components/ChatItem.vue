@@ -5,7 +5,7 @@
     :text="content"
     :stamp="stamp"
     :sent="sender_id"
-    :class="sent ? 'me' : 'you'"
+    :class="sender_id ? 'me' : 'you'"
   />
 </template>
 
@@ -36,8 +36,14 @@ export default defineComponent({
       default: false,
     },
   },
-  updated() {
-    // console.log(props);
+  setup(props) {
+    // console.log(props.toString(), "props");
+    // xu ly du lieu o day
+    // console.log(props.sender_id, "props.sender_id")
+    // return {
+    //   ...props,
+    //   sender_id: Boolean(props.sender_id),
+    // };
   },
 });
 </script>
