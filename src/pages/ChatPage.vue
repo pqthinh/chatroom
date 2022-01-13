@@ -28,9 +28,12 @@ import {
   onUpdated,
   onUnmounted,
   onBeforeMount,
+  watch
 } from "vue";
 import moment from "moment";
 import ChatItem from "components/ChatItem.vue";
+import { useSocketIo } from "boot/socket";
+
 moment.locale("vi");
 
 const sendData = {
@@ -38,74 +41,6 @@ const sendData = {
   sender_id: "thinhpq",
   content: "",
 };
-const listMessage = [
-  {
-    room_id: "123",
-    content: [
-      "doing fine, how r you?",
-      "I just feel like typing a really, really, REALLY long message to annoy you...",
-      "I just feel like typing a really, really, REALLY long message to annoy you...  I just feel like typing a really, really, REALLY long message to annoy you...",
-    ],
-    sender_id: "",
-    stamp: moment(new Date()).fromNow(),
-  },
-  {
-    room_id: "123",
-    content: ["hey, how are you?"],
-    sender_id: "",
-    stamp: moment(new Date()).fromNow(),
-  },
-  {
-    room_id: "123",
-    content: ["Did it work?"],
-    sender_id: "thinhpq",
-    stamp: moment(new Date()).fromNow(),
-  },
-  {
-    room_id: "123",
-    content: [
-      "doing fine, how r you?",
-      "I just feel like typing a really, really, REALLY long message to annoy you...",
-      "I just feel like typing a really, really, REALLY long message to annoy you...  I just feel like typing a really, really, REALLY long message to annoy you...",
-    ],
-    sender_id: "",
-    stamp: moment(new Date()).fromNow(),
-  },
-  {
-    room_id: "123",
-    content: ["hey, how are you?"],
-    sender_id: "",
-    stamp: moment(new Date()).fromNow(),
-  },
-  {
-    room_id: "123",
-    content: ["Did it work?"],
-    sender_id: "",
-    stamp: moment(new Date()).fromNow(),
-  },
-  {
-    room_id: "123",
-    content: [
-      "doing fine, how r you?",
-      "I just feel like typing a really, really, REALLY long message to annoy you...",
-      "I just feel like typing a really, really, REALLY long message to annoy you...  I just feel like typing a really, really, REALLY long message to annoy you...",
-    ],
-    sender_id: "",
-    stamp: moment(new Date()).fromNow(),
-  },
-  {
-    room_id: "123",
-    content: ["hey, how are you?"],
-    sender_id: "",
-    stamp: moment(new Date()).fromNow(),
-  },
-  {
-    room_id: "123",
-    content: ["Did it work?"],
-    sender_id: "",
-    stamp: moment(new Date()).fromNow(),
-  },
-];
 
 export default defineComponent({
   name: "ChatPage",
@@ -116,6 +51,7 @@ export default defineComponent({
     const conversationChat = ref([]);
     const textContent = ref(null);
     const chat_content = ref(null);
+    const socket = useSocketIo();
 
     const scrollToBottom = () => {
       if (!chat_content.value) return;
@@ -123,10 +59,30 @@ export default defineComponent({
       scrollArea.scrollTop = scrollArea.scrollHeight;
       scrollArea.scrollIntoView({ behavior: "smooth", block: "end" });
     };
-    
+
+    const messageList = ref("");
+    const typing = ref(false);
+
+    socket.on("send-message", (lastMessage) => {
+      messageList.value = [...messageList.value, lastMessage.message];
+    });
+
+    socket.on("typing", (data) => {
+      console.log(data, "typing");
+      typing.value = data;
+    });
+
+    socket.on("stopTyping", () => {
+      typing.value = false;
+    });
+
+    window.onbeforeunload = () => {
+      socket.emit("leave", socket.id);
+    };
+
     onBeforeMount(() => {
       console.log("before mount!");
-      conversationChat.value= [...listMessage]
+      conversationChat.value = [...messageList.value];
     });
     onMounted(() => {
       console.log("mounted!");
@@ -137,7 +93,14 @@ export default defineComponent({
       scrollToBottom();
     });
     onUnmounted(() => {
+      socket.emit("leave", socket.id);
       console.log("unmounted!");
+    });
+
+    watch(textContent, (textContent, _) => {
+      textContent
+        ? socket.emit("typing", "Thinhpq")
+        : socket.emit("stopTyping");
     });
 
     return {
@@ -145,10 +108,16 @@ export default defineComponent({
       textContent,
       chat_content,
       sendMessage() {
+        socket.emit("send-message", {
+          message: textContent.value,
+          user_id: "thinhpq",
+        });
+
         conversationChat.value.push({
           ...sendData,
           content: [textContent.value],
         });
+        messageList.value = conversationChat.value;
         textContent.value = null;
       },
     };

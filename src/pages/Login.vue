@@ -36,11 +36,25 @@ import { useQuasar } from "quasar";
 import { ref } from "vue";
 
 export default {
+  name: "LoginPage",
+  components: {},
   setup() {
     const $q = useQuasar();
 
     const username = ref(null);
     const password = ref(null);
+
+    // phân biết ref với reactive của hook Vue
+
+    // watchEffect thường đi với reactive
+
+
+    watchEffect(() => {
+      // This effect runs before the DOM is updated, and consequently,
+      // the template ref does not hold a reference to the element yet.
+      // cái này tương đương với watch nhưng chắc có thể kiểm soát được số lần render lại như useEffect của React
+      console.log(username.value); // => null
+    });
 
     return {
       username,
@@ -62,5 +76,6 @@ export default {
       },
     };
   },
+  methods: {},
 };
 </script>
