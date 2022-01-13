@@ -5,7 +5,37 @@ const DataBase = require("./db.js");
 const db = new DataBase();
 
 app.get("/", (req, res) => {
-  res.send("<h1>Hello world</h1>");
+  res.json("Hello world");
+});
+
+// register
+app.post("/register", (req, res) => {
+  res.json("Hello world");
+});
+
+// login
+app.post("/login", (req, res) => {
+  res.json("Hello world");
+});
+
+// send message of room
+app.post("/send-message", (req, res) => {
+  res.json("Hello world");
+});
+
+// get list message of room
+app.post("/chat/room", (req, res) => {
+  res.json("Hello world");
+});
+
+// create room
+app.post("/chat/create-room", (req, res) => {
+  res.json("Hello world");
+});
+
+// upload file
+app.post("/upload", (req, res)=>{
+  res.json("Hello world");
 });
 
 io.on("connection", (socket) => {

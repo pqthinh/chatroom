@@ -19,8 +19,8 @@ class DB {
         resolve(true);
       } else
         db.execute(
-          "INSERT INTO users (name, user_id, password, email) VALUES (?,?)",
-          [data.name, data.user_id],
+          "INSERT INTO users (name, password, email, avatar) VALUES (?,?, ?, ?)",
+          [data.name, data.password, data.email, data.avatar],
           function (err, rows) {
             if (err) reject(new Error(err));
             else resolve(rows);
@@ -45,22 +45,21 @@ class DB {
   fetchUserMessages(data) {
     return new Promise((resolve, reject) => {
       db.query(
-        "SELECT * from messages where email =?",
-        [data.email],
+        "SELECT * from messages where roomId =?",
+        [data.roomId],
         function (err, rows) {
           if (err) reject(err);
           else resolve(rows);
         }
       );
-
     });
   }
 
   storeUserMessage(data) {
     return new Promise((resolve, reject) => {
       db.query(
-        "INSERT INTO messages (message, user_id, name) VALUES (?,?,?)",
-        [data.message, data.user_id, data.name],
+        "INSERT INTO messages (message, userId, files, roomId) VALUES (?,?,?,?)",
+        [data.message, data.userId, data.file, data.roomId],
         function (err, rows) {
           if (err) reject(new Error(err));
           else resolve(rows);
