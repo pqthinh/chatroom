@@ -1,8 +1,23 @@
 const app = require("express")();
+const express = require("express");
+const cors = require("cors");
 const http = require("http").Server(app);
-const io = require("socket.io")(http);
+const io = require("socket.io")(http, {
+  cors: {
+    origin: "*",
+  },
+});
 const DataBase = require("./db.js");
 const db = new DataBase();
+app.use(
+  cors({
+    origin: "*",
+    "Access-Control-Allow-Origin": "*",
+    credentials: true,
+  })
+);
+app.use(express.json({ limit: "64mb" }));
+app.use(express.urlencoded({ limit: "64mb", extended: true }));
 
 app.get("/", (req, res) => {
   res.json("Hello world");
@@ -34,40 +49,48 @@ app.post("/chat/create-room", (req, res) => {
 });
 
 // upload file
-app.post("/upload", (req, res)=>{
+app.post("/upload", (req, res) => {
   res.json("Hello world");
 });
 
 io.on("connection", (socket) => {
+  console.log(
+    "A user with ID: " + socket.id + " connected",
+    socket.myappsuperuserid
+  );
 
-  console.log("A user with ID: " + socket.id + " connected");
+  socket.on("setUserId", function (uid) {
+    socket.uid = uid;
+    socket.id = uid;
+  });
 
   socket.on("disconnect", function () {
     console.log("A user with ID: " + socket.id + " disconnected");
   });
 
   // More Socket listening here.
-  if (io.sockets.connected)
+  if (io.sockets.connected) {
     socket.emit("connections", Object.keys(io.sockets.connected).length);
-  else socket.emit("connections", 0);
+    console.log(io.sockets.connected);
+  } else socket.emit("connections", 0);
 
   socket.on("send-message", async (message) => {
+    console.log(`User socket.id send message: ${JSON.stringify(message)}`);
     const data = {
       message: message.message,
       user_id: socket.id,
-      name: message.user,
     };
-    await db.storeUserMessage(data);
+    // await db.storeUserMessage(data);
     socket.broadcast.emit("send-message", message);
   });
 
   socket.on("typing", (data) => {
-    console.log("typing")
+    console.log("typing");
     socket.broadcast.emit("typing", data);
   });
 
   socket.on("stopTyping", () => {
-    console.log("stop typing")
+    console.log("stop typing");
     socket.broadcast.emit("stopTyping");
   });
 
@@ -87,7 +110,6 @@ io.on("connection", (socket) => {
   socket.on("leave", (data) => {
     socket.broadcast.emit("leave", data);
   });
-
 });
 
 http.listen(3000, () => {
