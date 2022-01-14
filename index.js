@@ -1,3 +1,4 @@
+require("dotenv").config();
 const app = require("express")();
 const express = require("express");
 const cors = require("cors");
@@ -24,13 +25,25 @@ app.get("/", (req, res) => {
 });
 
 // register
-app.post("/register", (req, res) => {
-  res.json("Hello world");
+app.post("/register", async (req, res) => {
+  try {
+    const { email, password, name, avatar } = req.body;
+    const response = await db.addUser({ email, password, name, avatar });
+    res.json(response);
+  } catch (err) {
+    res.json(err).status(400);
+  }
 });
 
 // login
-app.post("/login", (req, res) => {
-  res.json("Hello world");
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const response = await db.login({ email, password });
+    res.json(response);
+  } catch (err) {
+    res.json(err).status(400);
+  }
 });
 
 // send message of room
@@ -44,8 +57,17 @@ app.post("/chat/room", (req, res) => {
 });
 
 // create room
-app.post("/chat/create-room", (req, res) => {
-  res.json("Hello world");
+app.post("/chat/create-room", async (req, res) => {
+  try {
+    const { uid, name, listUser } = req.body;
+    let response = await db.createRoom({ founderId: uid, name });
+    console.log(response);
+    let { roomId } = response;
+    response = await db.addUserToRoom({ roomId, listUser });
+    res.json(response);
+  } catch (err) {
+    res.json(err).status(400);
+  }
 });
 
 // upload file

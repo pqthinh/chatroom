@@ -1,5 +1,10 @@
 const mysql = require("mysql2");
+const utils = require("./services/jwt");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 let db = null;
+const defaultAvatar =
+  " http://image.vtc.vn/files/f1/2013/06/07/ngoc-trinh_1jpg.jpg ";
 class DB {
   constructor() {
     db = mysql.createConnection({
@@ -13,19 +18,36 @@ class DB {
     });
   }
 
-  addUser(data) {
+  addUser({ email, password, avatar = defaultAvatar, name }) {
     return new Promise(async (resolve, reject) => {
-      if (await this.isUserExist(data)) {
-        resolve(true);
-      } else
+      if (await this.isUserExist({ email })) {
+        resolve("Email da duoc su dung");
+      } else {
+        const hash = bcrypt.hashSync(password, saltRounds);
         db.execute(
-          "INSERT INTO users (name, password, email, avatar) VALUES (?,?, ?, ?)",
-          [data.name, data.password, data.email, data.avatar],
+          "INSERT INTO users (name, password, email, avatar ) VALUES (?,?, ?, ?)",
+          [name, hash, email, avatar],
           function (err, rows) {
             if (err) reject(new Error(err));
-            else resolve(rows);
+            else resolve(`User ${rows.insertId} created`);
           }
         );
+      }
+    });
+  }
+
+  login({ email, password }) {
+    return new Promise(async (resolve, reject) => {
+      const user = await this.isUserExist({ email });
+      if (user) {
+        const uPassword = user.password;
+        if (!bcrypt.compareSync(password, uPassword)) {
+          reject(new Error("Password is Wrong."));
+        }
+        const token = utils.generateToken(user);
+        const userObj = utils.getCleanUser(user);
+        resolve({ data: { user: userObj, token }, message: "Login success" });
+      } else reject(new Error("Email khong ton tai"));
     });
   }
 
@@ -35,8 +57,42 @@ class DB {
         "SELECT * FROM users WHERE email = ?",
         [data.email],
         function (err, rows) {
-          if (err) reject(new Error(err));
+          if (err) reject(false);
           else resolve(rows[0]);
+        }
+      );
+    });
+  }
+
+  createRoom({ founderId, nameRoom = "" }) {
+    return new Promise((resolve, reject) => {
+      const roomId = Date.now();
+      db.execute(
+        "insert into room ( roomId, idUser , name) values (? ,? , ?)",
+        [roomId, founderId, nameRoom],
+        function (err, rows) {
+          if (err) reject(false);
+          else resolve({ id: rows.insertId, roomId: roomId });
+        }
+      );
+    });
+  }
+
+  addUserToRoom({ roomId, listUser }) {
+    let dataInsert = [];
+    if (Array.isArray(listUser))
+      listUser.map((u) => {
+        dataInsert = [...dataInsert, [roomId, u]];
+      });
+    else dataInsert = [roomId, listUser];
+    console.log(dataInsert)
+    return new Promise((resolve, reject) => {
+      db.execute(
+        "insert into room (roomId, idUser) values ?",
+        [dataInsert],
+        function (err, _) {
+          if (err) reject(err);
+          else resolve(`Created room ${roomId}`);
         }
       );
     });
