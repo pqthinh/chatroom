@@ -50,6 +50,7 @@
 import { useQuasar } from "quasar";
 import { ref } from "vue";
 import { api } from "boot/axios";
+import { useRouter } from "vue-router";
 
 export default {
   setup() {
@@ -59,9 +60,9 @@ export default {
     const password = ref(null);
     const rePassword = ref(null);
     const email = ref(null);
+    const router = useRouter();
 
     const onSubmit = async () => {
-      // router.push({ path: "login" });
       if (password.value != rePassword.value) {
         $q.notify({
           color: "red-4",
@@ -83,7 +84,7 @@ export default {
           icon: "cloud_done",
           message: "Login success",
         });
-        // router.push({ path: "login" });
+        router.push({ path: "login" });
       } else
         $q.notify({
           color: "red-4",
