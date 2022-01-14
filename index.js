@@ -76,14 +76,11 @@ app.post("/upload", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log(
-    "A user with ID: " + socket.id + " connected",
-    socket.myappsuperuserid
-  );
+  console.log("A user with ID: " + socket.id + " connected");
 
-  socket.on("setUserId", function (uid) {
-    socket.uid = uid;
-    socket.id = uid;
+  socket.on("setRoomId", function (roomId) {
+    socket.roomId = roomId;
+    socket.join(roomId);
   });
 
   socket.on("disconnect", function () {
@@ -91,29 +88,29 @@ io.on("connection", (socket) => {
   });
 
   // More Socket listening here.
-  if (io.sockets.connected) {
+  if (io.sockets.connected)
     socket.emit("connections", Object.keys(io.sockets.connected).length);
-    console.log(io.sockets.connected);
-  } else socket.emit("connections", 0);
+  else socket.emit("connections", 0);
 
   socket.on("send-message", async (message) => {
-    console.log(`User socket.id send message: ${JSON.stringify(message)}`);
-    const data = {
-      message: message.message,
-      user_id: socket.id,
-    };
+    console.log(`User ${socket.id} send message: ${JSON.stringify(message)}`);
+    // const data = {
+    //   message: message.message,
+    //   user_id: uid,
+    //   roomId: roomId
+    // };
     // await db.storeUserMessage(data);
-    socket.broadcast.emit("send-message", message);
+    socket.to(socket.roomId).emit("send-message", message);
   });
 
   socket.on("typing", (data) => {
     console.log("typing");
-    socket.broadcast.emit("typing", data);
+    socket.to(socket.roomId).emit("typing", data);
   });
 
   socket.on("stopTyping", () => {
     console.log("stop typing");
-    socket.broadcast.emit("stopTyping");
+    socket.to(socket.roomId).emit("stopTyping");
   });
 
   socket.on("joined", async (name) => {
@@ -126,11 +123,11 @@ io.on("connection", (socket) => {
     if (user) {
       messageData = await db.fetchUserMessages(data);
     }
-    socket.broadcast.emit("joined", messageData);
+    socket.to(socket.roomId).emit("joined", messageData);
   });
 
   socket.on("leave", (data) => {
-    socket.broadcast.emit("leave", data);
+    socket.to(socket.roomId).emit("leave", data);
   });
 });
 
