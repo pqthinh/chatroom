@@ -2,7 +2,7 @@
   <q-chat-message
     :name="name"
     :avatar="avatar"
-    :text="content"
+    :text="message"
     :stamp="stamp"
     :sent="sender_id"
     :class="sender_id ? 'me' : 'you'"
@@ -24,7 +24,7 @@ export default defineComponent({
       type: String,
       default: "https://cdn.quasar.dev/img/avatar3.jpg",
     },
-    content: {
+    message: {
       default: "hey, how are you?",
     },
     stamp: {

@@ -4,7 +4,7 @@
     <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
       <q-input
         filled
-        v-model="username"
+        v-model="email"
         label="Tên đăng nhập"
         lazy-rules
         :rules="[(val) => (val && val.length > 0) || 'Hãy nhập thông tin']"
@@ -33,7 +33,8 @@
 
 <script>
 import { useQuasar } from "quasar";
-import { ref } from "vue";
+import { ref, watchEffect } from "vue";
+import { api } from "boot/axios";
 
 export default {
   name: "LoginPage",
@@ -41,37 +42,39 @@ export default {
   setup() {
     const $q = useQuasar();
 
-    const username = ref(null);
+    const email = ref(null);
     const password = ref(null);
 
     // phân biết ref với reactive của hook Vue
 
     // watchEffect thường đi với reactive
 
-
     watchEffect(() => {
       // This effect runs before the DOM is updated, and consequently,
       // the template ref does not hold a reference to the element yet.
       // cái này tương đương với watch nhưng chắc có thể kiểm soát được số lần render lại như useEffect của React
-      console.log(username.value); // => null
+      console.log(email.value); // => null
     });
+    const onSubmit = async () => {
+      const data = await api.post("/login", {
+        email: email.value,
+        password: password.value,
+      });
+      console.log(data, "data");
 
+      $q.notify({
+        color: "green-4",
+        textColor: "white",
+        icon: "cloud_done",
+        message: "Login success",
+      });
+    };
     return {
-      username,
+      email,
       password,
-
-      onSubmit() {
-        console.log(username, password);
-        $q.notify({
-          color: "green-4",
-          textColor: "white",
-          icon: "cloud_done",
-          message: "Login success",
-        });
-      },
-
+      onSubmit,
       onReset() {
-        username.value = null;
+        email.value = null;
         password.value = null;
       },
     };

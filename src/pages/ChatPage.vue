@@ -2,7 +2,7 @@
   <div class="q-pa-md row justify-center chat__content">
     <div class="chat_content--list-message" ref="chat_content">
       <ChatItem
-        v-for="chatItem in conversationChat"
+        v-for="chatItem in messageList"
         :key="chatItem"
         v-bind="chatItem"
       />
@@ -28,7 +28,7 @@ import {
   onUpdated,
   onUnmounted,
   onBeforeMount,
-  watch
+  watch,
 } from "vue";
 import moment from "moment";
 import ChatItem from "components/ChatItem.vue";
@@ -39,7 +39,7 @@ moment.locale("vi");
 const sendData = {
   room_id: "123",
   sender_id: "thinhpq",
-  content: "",
+  message: "",
 };
 
 export default defineComponent({
@@ -48,10 +48,10 @@ export default defineComponent({
     ChatItem,
   },
   setup() {
-    const conversationChat = ref([]);
     const textContent = ref(null);
     const chat_content = ref(null);
     const socket = useSocketIo();
+    const roomId = "Thanh-Thinh";
 
     const scrollToBottom = () => {
       if (!chat_content.value) return;
@@ -60,11 +60,16 @@ export default defineComponent({
       scrollArea.scrollIntoView({ behavior: "smooth", block: "end" });
     };
 
-    const messageList = ref("");
+    const messageList = ref([]);
     const typing = ref(false);
 
+    socket.on("connect", function () {
+      console.log(`client connection done..... ${socket.id}`);
+      socket.emit("setRoomId", roomId);
+    });
+
     socket.on("send-message", (lastMessage) => {
-      messageList.value = [...messageList.value, lastMessage.message];
+      messageList.value = [...messageList.value, lastMessage];
     });
 
     socket.on("typing", (data) => {
@@ -82,7 +87,7 @@ export default defineComponent({
 
     onBeforeMount(() => {
       console.log("before mount!");
-      conversationChat.value = [...messageList.value];
+      socket.connect();
     });
     onMounted(() => {
       console.log("mounted!");
@@ -94,6 +99,7 @@ export default defineComponent({
     });
     onUnmounted(() => {
       socket.emit("leave", socket.id);
+      socket.disconnect();
       console.log("unmounted!");
     });
 
@@ -104,20 +110,20 @@ export default defineComponent({
     });
 
     return {
-      conversationChat,
+      messageList,
       textContent,
       chat_content,
       sendMessage() {
+        if (!textContent.value) return;
         socket.emit("send-message", {
-          message: textContent.value,
+          message: [textContent.value],
           user_id: "thinhpq",
         });
 
-        conversationChat.value.push({
+        messageList.value.push({
           ...sendData,
-          content: [textContent.value],
+          message: [textContent.value],
         });
-        messageList.value = conversationChat.value;
         textContent.value = null;
       },
     };
