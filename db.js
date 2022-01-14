@@ -79,22 +79,27 @@ class DB {
   }
 
   addUserToRoom({ roomId, listUser }) {
-    let dataInsert = [];
-    if (Array.isArray(listUser))
-      listUser.map((u) => {
-        dataInsert = [...dataInsert, [roomId, u]];
-      });
-    else dataInsert = [roomId, listUser];
-    console.log(dataInsert)
     return new Promise((resolve, reject) => {
-      db.execute(
-        "insert into room (roomId, idUser) values ?",
-        [dataInsert],
-        function (err, _) {
-          if (err) reject(err);
-          else resolve(`Created room ${roomId}`);
-        }
-      );
+      if (Array.isArray(listUser)) {
+        listUser.map((u) => {
+          db.execute(
+            "insert into room (roomId, idUser) values (?, ?)",
+            [roomId, u],
+            function (err, _) {
+              if (err) reject(err);
+            }
+          );
+        });
+      } else {
+        db.execute(
+          "insert into room (roomId, idUser) values (?, ?)",
+          [roomId, listUser],
+          function (err, _) {
+            if (err) reject(err);
+          }
+        );
+      }
+      resolve(`Add ${JSON.stringify(listUser)} into room ${roomId}`);
     });
   }
 
