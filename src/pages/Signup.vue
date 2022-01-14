@@ -49,6 +49,7 @@
 <script>
 import { useQuasar } from "quasar";
 import { ref } from "vue";
+import { api } from "boot/axios";
 
 export default {
   setup() {
@@ -59,21 +60,45 @@ export default {
     const rePassword = ref(null);
     const email = ref(null);
 
+    const onSubmit = async () => {
+      // router.push({ path: "login" });
+      if (password.value != rePassword.value) {
+        $q.notify({
+          color: "red-4",
+          textColor: "white",
+          icon: "cloud_done",
+          message: "Login false",
+        });
+        return;
+      }
+      const { data } = await api.post("/register", {
+        email: email.value,
+        password: password.value,
+        name: name.value,
+      });
+      if (data) {
+        $q.notify({
+          color: "green-4",
+          textColor: "white",
+          icon: "cloud_done",
+          message: "Login success",
+        });
+        // router.push({ path: "login" });
+      } else
+        $q.notify({
+          color: "red-4",
+          textColor: "white",
+          icon: "cloud_done",
+          message: "Login false",
+        });
+    };
+
     return {
       name,
       email,
       password,
       rePassword,
-      onSubmit() {
-        console.log(name, password, email, rePassword);
-        $q.notify({
-          color: "green-4",
-          textColor: "white",
-          icon: "cloud_done",
-          message: "Submitted",
-        });
-      },
-
+      onSubmit,
       onReset() {
         name.value = null;
         email.value = null;
