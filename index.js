@@ -46,14 +46,42 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// get list user
+app.get("/users", async (req, res) => {
+  try {
+    const response = await db.getListUser();
+    res.json(response);
+  } catch (err) {
+    res.json(err).status(400);
+  }
+});
+
+// get list message dependent roomId
+app.get("/room/:id", async (req, res) => {
+  try {
+    const roomId = req.params.id;
+    console.log(roomId);
+    const response = await db.getMessageOfRoom(roomId);
+    res.json(response);
+  } catch (err) {
+    res.json(err).status(400);
+  }
+});
+
 // send message of room
 app.post("/send-message", (req, res) => {
   res.json("Hello world");
 });
 
 // get list message of room
-app.post("/chat/room", (req, res) => {
-  res.json("Hello world");
+app.get("/list-room/:uid", async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const response = await db.getListRoom(uid);
+    res.json(response);
+  } catch (err) {
+    res.json(err).status(400);
+  }
 });
 
 // create room
@@ -61,7 +89,6 @@ app.post("/chat/create-room", async (req, res) => {
   try {
     const { uid, name, listUser } = req.body;
     let response = await db.createRoom({ founderId: uid, name });
-    console.log(response);
     let { roomId } = response;
     response = await db.addUserToRoom({ roomId, listUser });
     res.json(response);
@@ -92,15 +119,28 @@ io.on("connection", (socket) => {
     socket.emit("connections", Object.keys(io.sockets.connected).length);
   else socket.emit("connections", 0);
 
-  socket.on("send-message", async (message) => {
-    console.log(`User ${socket.id} send message: ${JSON.stringify(message)}`);
-    // const data = {
-    //   message: message.message,
-    //   user_id: uid,
-    //   roomId: roomId
-    // };
-    // await db.storeUserMessage(data);
-    socket.to(socket.roomId).emit("send-message", message);
+  socket.on("send-message", async ({ message, user_id }) => {
+    console.log(
+      `User ${socket.id} send message: ${JSON.stringify({
+        message,
+        user_id,
+        roomId: socket.roomId,
+      })}`
+    );
+    const data = {
+      message: message,
+      userId: user_id,
+      roomId: socket.roomId,
+    };
+    await db.storeUserMessage(data);
+    socket
+      .to(socket.roomId)
+      .emit("send-message", {
+        message,
+        user_id,
+        roomId: socket.roomId,
+        stamp: new Date(),
+      });
   });
 
   socket.on("typing", (data) => {

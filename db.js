@@ -24,9 +24,10 @@ class DB {
         resolve("Email da duoc su dung");
       } else {
         const hash = bcrypt.hashSync(password, saltRounds);
+        const uid = bcrypt.hashSync(Date.now().toString(), saltRounds);
         db.execute(
-          "INSERT INTO users (name, password, email, avatar ) VALUES (?,?, ?, ?)",
-          [name, hash, email, avatar],
+          "INSERT INTO users (uid, name, password, email, avatar ) VALUES (?,?,?, ?, ?)",
+          [uid, name, hash, email, avatar],
           function (err, rows) {
             if (err) reject(new Error(err));
             else resolve(`User ${rows.insertId} created`);
@@ -99,14 +100,17 @@ class DB {
           }
         );
       }
-      resolve(`Add ${JSON.stringify(listUser)} into room ${roomId}`);
+      resolve({
+        message: `Add ${JSON.stringify(listUser)} into room ${roomId}`,
+        roomId,
+      });
     });
   }
 
   fetchUserMessages(data) {
     return new Promise((resolve, reject) => {
       db.query(
-        "SELECT * from messages where roomId =?",
+        "SELECT * from message where roomId =?",
         [data.roomId],
         function (err, rows) {
           if (err) reject(err);
@@ -116,11 +120,46 @@ class DB {
     });
   }
 
-  storeUserMessage(data) {
+  storeUserMessage({ message, userId, files = null, roomId }) {
     return new Promise((resolve, reject) => {
       db.query(
-        "INSERT INTO messages (message, userId, files, roomId) VALUES (?,?,?,?)",
-        [data.message, data.userId, data.file, data.roomId],
+        "INSERT INTO message (message, userId, file, roomId) VALUES (?,?,?,?)",
+        [message, userId, files, roomId],
+        function (err, rows) {
+          if (err) reject(new Error(err));
+          else resolve(rows);
+        }
+      );
+    });
+  }
+
+  getListUser() {
+    return new Promise((resolve, reject) => {
+      db.query("select * from users", [], function (err, rows) {
+        if (err) reject(new Error(err));
+        else resolve(rows);
+      });
+    });
+  }
+
+  getMessageOfRoom(roomId) {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `select * from users, message where message.roomId = ? and message.userId=users.id`,
+        [roomId],
+        function (err, rows) {
+          if (err) reject(new Error(err));
+          else resolve(rows);
+        }
+      );
+    });
+  }
+
+  getListRoom(uid) {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `select distinct(receive.roomId),receive.*, users.* from room as sender, room as receive, users where not sender.idUser=? and not receive.idUser=? and receive.idUser=users.id and receive.roomId=sender.roomId `,
+        [uid, uid],
         function (err, rows) {
           if (err) reject(new Error(err));
           else resolve(rows);

@@ -5,6 +5,7 @@ function generateToken(user) {
 
   var u = {
     id: user.id,
+    uid: user.uid,
     name: user.name,
     email: user.email,
     avatar: user.avatar,
@@ -19,6 +20,7 @@ function getCleanUser(user) {
   if (!user) return null;
   return {
     id: user.id,
+    uid: user.uid,
     name: user.name,
     email: user.email,
     avatar: user.avatar,
