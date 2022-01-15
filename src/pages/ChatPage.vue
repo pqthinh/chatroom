@@ -33,12 +33,13 @@ import {
 import moment from "moment";
 import ChatItem from "components/ChatItem.vue";
 import { useSocketIo } from "boot/socket";
+import { api } from "boot/axios";
 
 moment.locale("vi");
 
 const sendData = {
-  room_id: "123",
-  sender_id: "thinhpq",
+  room_id: localStorage.getItem("roomId"),
+  sender_id: JSON.parse(localStorage.getItem("user") || "{}")?.id,
   message: "",
 };
 
@@ -51,15 +52,8 @@ export default defineComponent({
     const textContent = ref(null);
     const chat_content = ref(null);
     const socket = useSocketIo();
-    const roomId = "Thanh-Thinh";
-
-    const scrollToBottom = () => {
-      if (!chat_content.value) return;
-      const scrollArea = chat_content.value;
-      scrollArea.scrollTop = scrollArea.scrollHeight;
-      scrollArea.scrollIntoView({ behavior: "smooth", block: "end" });
-    };
-
+    const roomId = localStorage.getItem("roomId");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
     const messageList = ref([]);
     const typing = ref(false);
 
@@ -69,7 +63,16 @@ export default defineComponent({
     });
 
     socket.on("send-message", (lastMessage) => {
-      messageList.value = [...messageList.value, lastMessage];
+      messageList.value = [
+        ...messageList.value,
+        {
+          userId: lastMessage.user_id,
+          message: lastMessage.message,
+          createdAt: lastMessage.stamp,
+          roomId: lastMessage.roomId,
+          sender_id: false
+        },
+      ];
     });
 
     socket.on("typing", (data) => {
@@ -85,18 +88,35 @@ export default defineComponent({
       socket.emit("leave", socket.id);
     };
 
-    onBeforeMount(() => {
-      console.log("before mount!");
+    const scrollToBottom = () => {
+      if (!chat_content.value) return;
+      const scrollArea = chat_content.value;
+      scrollArea.scrollTop = scrollArea.scrollHeight;
+      scrollArea.scrollIntoView({ behavior: "smooth", block: "end" });
+    };
+
+    onBeforeMount(async () => {
+      if (!roomId) return;
+      const { data } = await api.get(`/room/${roomId}`);
+      messageList.value = data.map((e) => ({
+        ...e,
+        message: [e.message],
+        stamp: moment(e?.createdAt || new Date())
+          .fromNow()
+          .toString(),
+        sender_id: user?.uid==e.uid
+      }));
       socket.connect();
     });
-    onMounted(() => {
-      console.log("mounted!");
+
+    onMounted(async () => {
       scrollToBottom();
     });
+
     onUpdated(() => {
-      console.log("updated!");
       scrollToBottom();
     });
+
     onUnmounted(() => {
       socket.emit("leave", socket.id);
       socket.disconnect();
@@ -104,9 +124,7 @@ export default defineComponent({
     });
 
     watch(textContent, (textContent, _) => {
-      textContent
-        ? socket.emit("typing", "Thinhpq")
-        : socket.emit("stopTyping");
+      textContent ? socket.emit("typing", user?.id) : socket.emit("stopTyping");
     });
 
     return {
@@ -117,12 +135,16 @@ export default defineComponent({
         if (!textContent.value) return;
         socket.emit("send-message", {
           message: [textContent.value],
-          user_id: "thinhpq",
+          user_id: user?.id,
+          avatar: user?.avatar
         });
 
         messageList.value.push({
           ...sendData,
           message: [textContent.value],
+          stamp: moment(new Date()).fromNow().toString(),
+          avatar: user?.avatar,
+          sender_id: true
         });
         textContent.value = null;
       },

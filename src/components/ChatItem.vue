@@ -10,12 +10,12 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 export default defineComponent({
   name: "ChatItem",
   props: {
-    room_id: { type: String, default: "123" },
+    room_id: { type: String },
     name: {
       type: String,
       default: "Thanhnt",
@@ -35,15 +35,6 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-  },
-  setup(props) {
-    // console.log(props.toString(), "props");
-    // xu ly du lieu o day
-    // console.log(props.sender_id, "props.sender_id")
-    // return {
-    //   ...props,
-    //   sender_id: Boolean(props.sender_id),
-    // };
   },
 });
 </script>
