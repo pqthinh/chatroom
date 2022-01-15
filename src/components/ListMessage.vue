@@ -1,5 +1,5 @@
 <template>
-  <q-item class="chat__item-friend">
+  <q-item class="chat__item-friend" clickable @click="openRoom">
     <q-item-section avatar>
       <q-avatar>
         <img :src="avatar" />
@@ -25,6 +25,9 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "ListMessage",
   props: {
+    idRoom: {
+      type: String,
+    },
     name: {
       type: String,
       default: "Thanhnt",
@@ -42,11 +45,16 @@ export default defineComponent({
 
     stamp: {
       type: String,
-      default: '',
+      default: "",
     },
   },
-  setup(props, ctx) {
-    // console.log(ctx, "name")
-  }
+  setup(props) {
+    const openRoom = () => {
+      localStorage.setItem("roomId", props.idRoom);
+    };
+    return {
+      openRoom,
+    };
+  },
 });
 </script>

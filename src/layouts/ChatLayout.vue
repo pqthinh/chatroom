@@ -20,7 +20,22 @@
           icon="help_outline"
           @click="toggleRightDrawer"
         />
-        <div>{{ $q.version }}</div>
+        <div class="tab_profile--icon">{{ user?.name }}</div>
+
+        <q-avatar class="tab_profile--icon">
+          <img :src="user?.avatar" />
+          <q-menu anchor="bottom right" self="bottom left">
+            <q-list class="min-width-200">
+              <q-item clickable v-close-popup>
+                <q-item-section>Trang cá nhân</q-item-section>
+              </q-item>
+
+              <q-item clickable v-close-popup>
+                <q-item-section @click="logout">Đăng xuất</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-avatar>
       </q-toolbar>
     </q-header>
 
@@ -29,9 +44,9 @@
         <q-item-label header> Cuộc trò chuyện </q-item-label>
 
         <ListMessage
-          v-for="link in listConversation"
-          :key="link.name"
-          v-bind="link"
+          v-for="conversation in listRoom"
+          :key="conversation.name"
+          v-bind="conversation"
         />
       </q-list>
     </q-drawer>
@@ -57,10 +72,12 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, onBeforeMount } from "vue";
 import ListMessage from "components/ListMessage.vue";
 import FriendList from "components/FriendItem.vue";
+import { useRouter } from "vue-router";
 import moment from "moment";
+import { api } from "boot/axios";
 
 moment.fn.fromNow = function (a) {
   var duration = moment().diff(this, "day") + " ngày trước";
@@ -68,58 +85,6 @@ moment.fn.fromNow = function (a) {
     duration = moment().diff(this, "hours") + " giờ trước";
   return duration;
 };
-
-const listConversation = [
-  {
-    idRoom: 1,
-    name: "Docs",
-    lastMessage: "quasar.dev",
-    stamp: moment(new Date("12/12/2021")).fromNow(),
-    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
-  },
-  {
-    idRoom: 1,
-    name: "Github",
-    lastMessage: "github.com/quasarframework",
-    stamp: moment().fromNow().toString(),
-    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
-  },
-  {
-    idRoom: 1,
-    name: "Discord Chat Channel",
-    lastMessage: "chat.quasar.dev",
-    stamp: moment(new Date("12/14/2021")).fromNow().toString(),
-    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
-  },
-  {
-    idRoom: 1,
-    name: "Forum",
-    lastMessage: "forum.quasar.dev",
-    stamp: moment(new Date("12/14/2021")).fromNow().toString(),
-    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
-  },
-  {
-    idRoom: 1,
-    name: "Twitter",
-    lastMessage: "@quasarframework",
-    stamp: moment(new Date("12/14/2021")).fromNow().toString(),
-    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
-  },
-  {
-    idRoom: 1,
-    name: "Facebook",
-    lastMessage: "@QuasarFramework",
-    stamp: moment(new Date("12/14/2021")).fromNow().toString(),
-    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
-  },
-  {
-    idRoom: 1,
-    name: "Quasar Awesome",
-    lastMessage: "Community Quasar projects",
-    stamp: moment(new Date("12/14/2021")).fromNow().toString(),
-    avatar: "https://cdn.quasar.dev/img/avatar3.jpg",
-  },
-];
 
 export default defineComponent({
   name: "ChatLayout",
@@ -132,11 +97,42 @@ export default defineComponent({
   setup() {
     const leftDrawerOpen = ref(false);
     const drawerRight = ref(true);
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const listUser = ref([]);
+    const listRoom = ref([]);
+    const router = useRouter();
+
+    const logout = () => {
+      router.push({ path: "login" });
+      localStorage.clear();
+    };
+
+    onBeforeMount(async () => {
+      const { id, email, name, avatar } = user;
+      if (!id || !email || !name || !avatar) logout();
+
+      const { data } = await api.get("/users");
+      listUser.value = data;
+      let rooms = await api.get(`/list-room/${id}`);
+    
+      listRoom.value = rooms.data?.map((room) => ({
+        idRoom: room?.roomId,
+        name: room?.name || "",
+        avatar: room?.avatar || "",
+        lastMessage: room?.lastMessage || "",
+        stamp: moment(room?.lastActive || new Date())
+          .fromNow()
+          .toString(),
+      }));
+    });
+
     return {
-      listConversation: [...listConversation],
-      listUser: [...listConversation, ...listConversation, ...listConversation],
+      listRoom,
+      listUser,
       leftDrawerOpen,
       drawerRight,
+      user,
+      logout,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },

@@ -33,40 +33,57 @@
 
 <script>
 import { useQuasar } from "quasar";
-import { ref, watchEffect } from "vue";
+import { ref, onBeforeMount } from "vue";
 import { api } from "boot/axios";
+import { useRouter } from "vue-router";
 
 export default {
   name: "LoginPage",
   components: {},
   setup() {
     const $q = useQuasar();
-
     const email = ref(null);
     const password = ref(null);
+    const router = useRouter();
 
     // phân biết ref với reactive của hook Vue
-
     // watchEffect thường đi với reactive
+    // This effect runs before the DOM is updated, and consequently,
+    // the template ref does not hold a reference to the element yet.
+    // cái này tương đương với watch nhưng chắc có thể kiểm soát được số lần render lại như useEffect của React
 
-    watchEffect(() => {
-      // This effect runs before the DOM is updated, and consequently,
-      // the template ref does not hold a reference to the element yet.
-      // cái này tương đương với watch nhưng chắc có thể kiểm soát được số lần render lại như useEffect của React
-      console.log(email.value); // => null
+    onBeforeMount(() => {
+      if (!localStorage.getItem("user")) return localStorage.clear();
+      const { id, uid, name, email } = JSON.parse(localStorage.getItem("user"));
+      if (id && uid && name && email) router.push({ path: "chat" });
     });
     const onSubmit = async () => {
-      const data = await api.post("/login", {
+      const { data } = await api.post("/login", {
         email: email.value,
         password: password.value,
       });
-      console.log(data, "data");
+
+      if (data && data?.data) {
+        const { user, token } = data.data;
+        if (user && token) {
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+          $q.notify({
+            color: "green-4",
+            textColor: "white",
+            icon: "cloud_done",
+            message: "Login success",
+          });
+          router.push({ path: "chat" });
+        }
+        return;
+      }
 
       $q.notify({
-        color: "green-4",
+        color: "red-4",
         textColor: "white",
         icon: "cloud_done",
-        message: "Login success",
+        message: "Login failed",
       });
     };
     return {
