@@ -21,6 +21,7 @@
 
 <script>
 import { defineComponent } from "vue";
+import { useStore } from "vuex";
 
 export default defineComponent({
   name: "ListMessage",
@@ -49,7 +50,9 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const store = useStore();
     const openRoom = () => {
+      store.dispatch('changeRoom',  props.idRoom)
       localStorage.setItem("roomId", props.idRoom);
     };
     return {

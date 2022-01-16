@@ -29,11 +29,13 @@ import {
   onUnmounted,
   onBeforeMount,
   watch,
+  computed,
 } from "vue";
 import moment from "moment";
 import ChatItem from "components/ChatItem.vue";
 import { useSocketIo } from "boot/socket";
 import { api } from "boot/axios";
+import { useStore } from "vuex";
 
 moment.locale("vi");
 
@@ -52,10 +54,13 @@ export default defineComponent({
     const textContent = ref(null);
     const chat_content = ref(null);
     const socket = useSocketIo();
-    const roomId = localStorage.getItem("roomId");
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const messageList = ref([]);
     const typing = ref(false);
+    const store = useStore();
+    const roomId = computed(() => {
+      return store.state.chat.roomId;
+    });
 
     socket.on("connect", function () {
       console.log(`client connection done..... ${socket.id}`);
@@ -70,7 +75,7 @@ export default defineComponent({
           message: lastMessage.message,
           createdAt: lastMessage.stamp,
           roomId: lastMessage.roomId,
-          sender_id: false
+          sender_id: false,
         },
       ];
     });
@@ -95,17 +100,7 @@ export default defineComponent({
       scrollArea.scrollIntoView({ behavior: "smooth", block: "end" });
     };
 
-    onBeforeMount(async () => {
-      if (!roomId) return;
-      const { data } = await api.get(`/room/${roomId}`);
-      messageList.value = data.map((e) => ({
-        ...e,
-        message: [e.message],
-        stamp: moment(e?.createdAt || new Date())
-          .fromNow()
-          .toString(),
-        sender_id: user?.uid==e.uid
-      }));
+    onBeforeMount(() => {
       socket.connect();
     });
 
@@ -127,6 +122,19 @@ export default defineComponent({
       textContent ? socket.emit("typing", user?.id) : socket.emit("stopTyping");
     });
 
+    watch(roomId, async (roomId, _) => {
+      if (!roomId) return;
+      const { data } = await api.get(`/room/${roomId}`);
+      messageList.value = data.map((e) => ({
+        ...e,
+        message: [e.message],
+        stamp: moment(e?.createdAt || new Date())
+          .fromNow()
+          .toString(),
+        sender_id: user?.uid == e.uid,
+      }));
+    });
+
     return {
       messageList,
       textContent,
@@ -136,7 +144,7 @@ export default defineComponent({
         socket.emit("send-message", {
           message: [textContent.value],
           user_id: user?.id,
-          avatar: user?.avatar
+          avatar: user?.avatar,
         });
 
         messageList.value.push({
@@ -144,7 +152,7 @@ export default defineComponent({
           message: [textContent.value],
           stamp: moment(new Date()).fromNow().toString(),
           avatar: user?.avatar,
-          sender_id: true
+          sender_id: true,
         });
         textContent.value = null;
       },

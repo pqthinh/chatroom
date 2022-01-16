@@ -1,2 +1,3 @@
-export function someGetter (/* state */) {
+export const getRoomId = (state, payload) => {
+  return state.roomId || "";
 }

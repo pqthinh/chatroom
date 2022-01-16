@@ -1,2 +1,3 @@
-export function someMutation (/* state */) {
-}
+export const setRoomId = (state, payload) => {
+  state.roomId = payload;
+};
