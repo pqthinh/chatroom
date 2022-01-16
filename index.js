@@ -119,18 +119,21 @@ io.on("connection", (socket) => {
     socket.emit("connections", Object.keys(io.sockets.connected).length);
   else socket.emit("connections", 0);
 
-  socket.on("send-message", async ({ message, user_id }) => {
+  socket.on("send-message", async ({ message, user_id, file, roomId=socket.roomId }) => {
+    
     console.log(
       `User ${socket.id} send message: ${JSON.stringify({
         message,
         user_id,
-        roomId: socket.roomId,
+        roomId
       })}`
     );
+    if(!roomId) console.log("Room id null")
     const data = {
       message: message,
       userId: user_id,
-      roomId: socket.roomId,
+      roomId: roomId,
+      file: file
     };
     await db.storeUserMessage(data);
     socket
@@ -138,7 +141,8 @@ io.on("connection", (socket) => {
       .emit("send-message", {
         message,
         user_id,
-        roomId: socket.roomId,
+        file,
+        roomId,
         stamp: new Date(),
       });
   });

@@ -120,11 +120,13 @@ class DB {
     });
   }
 
-  storeUserMessage({ message, userId, files = null, roomId }) {
+  storeUserMessage({ message, userId, file = "", roomId }) {
+    console.log({ message, userId, file, roomId });
+    if (message.length < 1) message = null;
     return new Promise((resolve, reject) => {
       db.query(
-        "INSERT INTO message (message, userId, file, roomId) VALUES (?,?,?,?)",
-        [message, userId, files, roomId],
+        `INSERT INTO message (message, userId, roomId, file) VALUES (?,?,?,?)`,
+        [message, userId, roomId, file],
         function (err, rows) {
           if (err) reject(new Error(err));
           else resolve(rows);
