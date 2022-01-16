@@ -7,7 +7,19 @@
         v-bind="chatItem"
       />
     </div>
+
     <q-form @submit="sendMessage" class="input__send-message">
+      <label for="choose_file"
+        ><q-icon name="image" class="choose_file--icon" size="32px"
+      /></label>
+      <input
+        class="input__send-message--input-choosefile"
+        type="file"
+        id="choose_file"
+        :value="files"
+        :multiple="false"
+        :onchange="getFiles"
+      />
       <q-input
         filled
         v-model="textContent"
@@ -36,6 +48,7 @@ import ChatItem from "components/ChatItem.vue";
 import { useSocketIo } from "boot/socket";
 import { api } from "boot/axios";
 import { useStore } from "vuex";
+import { uploadImage } from "../utils/uploadFirebase";
 
 moment.locale("vi");
 
@@ -58,13 +71,14 @@ export default defineComponent({
     const messageList = ref([]);
     const typing = ref(false);
     const store = useStore();
+    const files = ref(null);
     const roomId = computed(() => {
       return store.state.chat.roomId;
     });
 
     socket.on("connect", function () {
       console.log(`client connection done..... ${socket.id}`);
-      socket.emit("setRoomId", roomId);
+      socket.emit("setRoomId", roomId.value || localStorage.getItem("roomId"));
     });
 
     socket.on("send-message", (lastMessage) => {
@@ -124,6 +138,7 @@ export default defineComponent({
 
     watch(roomId, async (roomId, _) => {
       if (!roomId) return;
+      localStorage.setItem("roomId", roomId);
       const { data } = await api.get(`/room/${roomId}`);
       messageList.value = data.map((e) => ({
         ...e,
@@ -139,12 +154,41 @@ export default defineComponent({
       messageList,
       textContent,
       chat_content,
+      files,
+      getFiles(e) {
+        const uploadFile = async (data) => {
+          const downloadURL = await uploadImage(
+            `chat/message_room_${localStorage.getItem(
+              "roomId"
+            )}/${Date.now()}.jpg`,
+            data
+          );
+          socket.emit("send-message", {
+            message: [],
+            user_id: user?.id,
+            avatar: user?.avatar,
+            file: downloadURL,
+          });
+
+          messageList.value.push({
+            ...sendData,
+            message: [],
+            stamp: moment(new Date()).fromNow().toString(),
+            file: downloadURL,
+            avatar: user?.avatar,
+            sender_id: true,
+          });
+        };
+        uploadFile(e.target.files[0]);
+        e.target.files = null;
+      },
       sendMessage() {
         if (!textContent.value) return;
         socket.emit("send-message", {
           message: [textContent.value],
           user_id: user?.id,
           avatar: user?.avatar,
+          file: "",
         });
 
         messageList.value.push({
@@ -153,6 +197,7 @@ export default defineComponent({
           stamp: moment(new Date()).fromNow().toString(),
           avatar: user?.avatar,
           sender_id: true,
+          file: "",
         });
         textContent.value = null;
       },

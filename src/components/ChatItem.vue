@@ -1,12 +1,25 @@
 <template>
-  <q-chat-message
-    :name="name"
-    :avatar="avatar"
-    :text="message"
-    :stamp="stamp"
-    :sent="sender_id"
-    :class="sender_id ? 'me' : 'you'"
-  />
+  <div v-show="file">
+    <q-chat-message
+      :name="name"
+      :avatar="avatar"
+      :stamp="stamp"
+      :sent="sender_id"
+      :class="sender_id ? 'me' : 'you'"
+    >
+      <img :src="file" class="message_img"/>
+    </q-chat-message>
+  </div>
+  <div v-show="message.length">
+    <q-chat-message
+      :name="name"
+      :avatar="avatar"
+      :text="message"
+      :stamp="stamp"
+      :sent="sender_id"
+      :class="sender_id ? 'me' : 'you'"
+    />
+  </div>
 </template>
 
 <script>
@@ -34,6 +47,10 @@ export default defineComponent({
     sender_id: {
       type: Boolean,
       default: false,
+    },
+    file: {
+      type: String,
+      default: "https://cdn.quasar.dev/img/avatar3.jpg",
     },
   },
 });
