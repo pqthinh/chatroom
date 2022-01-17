@@ -3,6 +3,32 @@
 ### simple vue frontend
 ### socket
 
+# Setup and run app
+1: Frontend : on frontend-chat branch
+Env for frontend: 
++ quarsar: FrameUI for Vuejs (https://quasar.dev)
++ npm i -g quarsar-cli (https://quasar.dev/start/quasar-cli)
++ `yarn`
++ `yarn start`
++ Info setup firebase to use feature upload image
+
+
+2: Backend
++ Nodejs (version >=12)
++ mysql
+
+Setup:
+- import file simple-chat-app.sql into xampp
+- update infor connect to mysql 
+- yarn
+- yarn start
+
+### Feature for app
+
+1: Chat realtime (socket.io client & server )
+2: Send file (image) to roomChat  (via firebase )
+3: Chat room (fix sql statment to get roomChat)
+
 ## DEMO
 
 ### chat
