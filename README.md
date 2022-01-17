@@ -4,7 +4,8 @@
 ### socket
 
 # Setup and run app
-1: Frontend : on frontend-chat branch
+1: Frontend : on frontend-chat branch  https://github.com/pqthinh/chatroom/tree/frontend-chat
+
 Env for frontend: 
 + quarsar: FrameUI for Vuejs (https://quasar.dev)
 + npm i -g quarsar-cli (https://quasar.dev/start/quasar-cli)
@@ -13,7 +14,7 @@ Env for frontend:
 + Info setup firebase to use feature upload image
 
 
-2: Backend
+2: Backend (on api-chat branch) https://github.com/pqthinh/chatroom/tree/api-chat
 + Nodejs (version >=12)
 + mysql
 
@@ -26,7 +27,9 @@ Setup:
 ### Feature for app
 
 1: Chat realtime (socket.io client & server )
+
 2: Send file (image) to roomChat  (via firebase )
+
 3: Chat room (fix sql statment to get roomChat)
 
 ## DEMO
