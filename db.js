@@ -8,10 +8,6 @@ const defaultAvatar =
 class DB {
   constructor() {
     db = mysql.createConnection({
-      // host: "localhost",
-      // user: "root",
-      // password: "",
-      // database: "simple-chat-app",
       host: "remotemysql.com",
       user: "SBHs6vqy59",
       password: "MzsvcRThPL",
@@ -19,6 +15,7 @@ class DB {
     });
     db.connect(function (err) {
       if (err) console.log(err);
+      else console.log("success conected db");
     });
   }
 
@@ -33,8 +30,10 @@ class DB {
           "INSERT INTO users (uid, name, password, email, avatar ) VALUES (?,?,?, ?, ?)",
           [uid, name, hash, email, avatar],
           function (err, rows) {
-            if (err) reject(new Error(err));
-            else resolve(`User ${rows.insertId} created`);
+            if (err) {
+              console.log(err, "error");
+              reject(new Error(err));
+            } else resolve(`User ${rows.insertId} created`);
           }
         );
       }
@@ -62,8 +61,10 @@ class DB {
         "SELECT * FROM users WHERE email = ?",
         [data.email],
         function (err, rows) {
-          if (err) reject(false);
-          else resolve(rows[0]);
+          if (err) {
+            console.log(err, "error");
+            reject(false);
+          } else resolve(rows[0]);
         }
       );
     });
