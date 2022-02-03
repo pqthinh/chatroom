@@ -103,8 +103,6 @@ app.post("/upload", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("A user with ID: " + socket.id + " connected");
-
   socket.on("setRoomId", function (roomId) {
     socket.roomId = roomId;
     socket.join(roomId);
@@ -119,33 +117,33 @@ io.on("connection", (socket) => {
     socket.emit("connections", Object.keys(io.sockets.connected).length);
   else socket.emit("connections", 0);
 
-  socket.on("send-message", async ({ message, user_id, file, roomId=socket.roomId }) => {
-    
-    console.log(
-      `User ${socket.id} send message: ${JSON.stringify({
-        message,
-        user_id,
-        roomId
-      })}`
-    );
-    if(!roomId) console.log("Room id null")
-    const data = {
-      message: message,
-      userId: user_id,
-      roomId: roomId,
-      file: file
-    };
-    await db.storeUserMessage(data);
-    socket
-      .to(socket.roomId)
-      .emit("send-message", {
+  socket.on(
+    "send-message",
+    async ({ message, user_id, file, roomId = socket.roomId }) => {
+      console.log(
+        `User ${socket.id} send message: ${JSON.stringify({
+          message,
+          user_id,
+          roomId,
+        })}`
+      );
+      if (!roomId) console.log("Room id null");
+      const data = {
+        message: message,
+        userId: user_id,
+        roomId: roomId,
+        file: file,
+      };
+      await db.storeUserMessage(data);
+      socket.to(socket.roomId).emit("send-message", {
         message,
         user_id,
         file,
         roomId,
         stamp: new Date(),
       });
-  });
+    }
+  );
 
   socket.on("typing", (data) => {
     console.log("typing");
@@ -175,6 +173,6 @@ io.on("connection", (socket) => {
   });
 });
 
-http.listen(3000, () => {
+http.listen(process.env.PORT || 3000, () => {
   console.log("listening on *:3000");
 });

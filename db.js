@@ -8,10 +8,14 @@ const defaultAvatar =
 class DB {
   constructor() {
     db = mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "",
-      database: "simple-chat-app",
+      // host: "localhost",
+      // user: "root",
+      // password: "",
+      // database: "simple-chat-app",
+      host: "remotemysql.com",
+      user: "SBHs6vqy59",
+      password: "MzsvcRThPL",
+      database: "SBHs6vqy59",
     });
     db.connect(function (err) {
       if (err) console.log(err);
